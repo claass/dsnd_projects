@@ -60,8 +60,7 @@ def load_data_from_dir(data_dir_path):
     image_datasets = {
         x: datasets.ImageFolder(
                 os.path.join(data_dir_path, x),
-                data_transforms[x]
-                )
+                data_transforms[x])
         for x in ['train', 'valid', 'test']
         }
 
@@ -70,8 +69,7 @@ def load_data_from_dir(data_dir_path):
         x: torch.utils.data.DataLoader(
                 image_datasets[x],
                 batch_size=64,
-                shuffle=True
-                )
+                shuffle=True)
         for x in ['train', 'valid', 'test']
         }
 
@@ -81,7 +79,7 @@ def load_data_from_dir(data_dir_path):
         for x in ['train', 'valid', 'test']
         }
 
-    class_names = image_datasets['train'].classes
+    class_names = image_datasets['train'].class_to_idx
 
     return {
         'data_dir_path': data_dir_path,
@@ -93,9 +91,8 @@ def load_data_from_dir(data_dir_path):
 
 
 def load_pretrained_model(arch='resnet18'):
-    """ Loads user specified architecture. Currently supported:
-        * resnet18
-        * resnet152
+    """ Loads user specified architecture. Currently supported are resnet18 and
+        resnet152.
     """
 
     if arch == 'resnet18':
@@ -109,7 +106,7 @@ def load_pretrained_model(arch='resnet18'):
 
 def replace_classifier(model, n_classes=102, hidden_units=300):
     """ Replaces the pretrained model's classifier with a custom
-        classifier to fit the new dataset
+        classifier to fit the new dataset.
     """
 
     # Freezing the pre-trained parameters
@@ -134,30 +131,45 @@ def replace_classifier(model, n_classes=102, hidden_units=300):
     model.fc = clf
 
 
-def train_model(model, optimizer, criterion, data_dict,
-                num_epochs=2, calc_validation=True, device='cuda'):
-    """ Main function for training the neural network. Across multiple epochs
-        and batches, completes forward passes, calculates prediction accuracy,
-        and completes backwards passes.
-        Model is updated inplace.
+def train_model(
+        model, optimizer, criterion, data_dict, num_epochs=2,
+        calc_validation=True, device='cuda'):
+    """Main function for training the neural network. Across multiple epochs
+    and batches, completes forward passes, calculates prediction accuracy,
+    and completes backwards passes.
+    Model is updated inplace.
+
+    Args:
+        model: An instances of a pytorch model.
+        optimizer: An instance of a pytorch optimizer (e.g. Adam).
+        criterion: An instance of a pytorch criterion (e.g. NNLoss)
+        data_dict: Dictionary containing at least train and validation
+            DataLoader.
+        num_epochs: Optional variable for setting the number of epochs
+        calc_validation: Optional variable for supressing calculations on the
+            validation set.
+        device: Otional variable to explicitly set the training device.
+
+    Returns:
+        The model is trained inplace. Nothing is explicitly returned.
     """
 
     since = time.time()
-
+    print('\n')
     print('*' * 25)
     print('Starting training process')
+    print('*' * 25)
 
     model.to(device)  # Moving model to requested device
     phases = ['train', 'valid'] if calc_validation else ['train']
 
     # Iterating through epochs
     for epoch in tqdm(range(num_epochs)):
-        print('\nEpoch {}/{}'.format(epoch+1, num_epochs))
-        print('-' * 10)
+        tqdm.write('\nEpoch {}/{}'.format(epoch+1, num_epochs))
+        tqdm.write('-' * 10)
 
         # Iterating through train and validation phase
         for phase in phases:
-            print(phase)
             running_loss = 0
             running_corrects = 0
             model.train() if phase == 'train' else model.eval()
@@ -190,8 +202,8 @@ def train_model(model, optimizer, criterion, data_dict,
             epoch_loss = running_loss / data_dict['dataset_sizes'][phase]
             epoch_acc = running_corrects.double(
             ) / data_dict['dataset_sizes'][phase]
-            print('{} Loss: {:.4f} Acc: {:.4f}'.format(
-                phase, epoch_loss, epoch_acc))
+            tqdm.write('{} Loss: {:.4f} Acc: {:.4f}'.format(
+                phase.capitalize(), epoch_loss, epoch_acc))
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(
@@ -227,8 +239,9 @@ def calc_test_accuracy(model, data_dict):
           (100 * correct / total))
 
 
-def save_checkpoint(model, optimizer, criterion,
-                    data_dict, arch, current_version):
+def save_checkpoint(
+        model, optimizer, criterion,
+        data_dict, arch, current_version):
     ''' Helper function to create and save a checkpoint for
         the current model.
     '''
@@ -248,12 +261,12 @@ def save_checkpoint(model, optimizer, criterion,
         )
 
 
-def load_from_checkpoint(filepath, last_device='cuda:0'):
+def load_from_checkpoint(filepath, device='cpu'):
     ''' Helper function to load a checkpoint, generate the old model,
         and return all things neccesary to resume training
     '''
 
-    checkpoint = torch.load(filepath, map_location=last_device)
+    checkpoint = torch.load(filepath, map_location=device)
 
     # Downloading the basemodel
     if checkpoint['base_model'] == 'resnet152':
@@ -300,8 +313,11 @@ def process_image(image):
     height = image.size[1]
 
     # Resizing the image while keeping aspect ratios intact
-    proper_size = (256, int(256*height/width)
-                   ) if width < height else (int(256*width/height), 256)
+    proper_size = (
+        (256, int(256*height/width))
+        if width < height
+        else (int(256*width/height), 256)
+    )
     im_resized = image.resize(proper_size)
 
     # Center cropping the image
@@ -343,26 +359,11 @@ def imshow(image, ax=None, title=None):
     return ax
 
 
-pil_im = Image.open('flowers/train/85/image_04812.jpg')  # Wide example
-
-print('Original image:')
-plt.imshow(pil_im)
-plt.show()
-
-print('Processed imaged:')
-p_im = process_image(pil_im)
-imshow(p_im)
-plt.show()
-
-print('Checking dimensions:')
-print(p_im.shape)
-
-
-def predict(image_path, model, topk=5):
+def predict(image_path, model, topk=5, class_names_json=None, use_gpu=True):
     ''' Predict the class (or classes) of an image using a trained
         deep learning model.
     '''
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = 'cuda:0' if use_gpu else 'cpu'
     model.to(device)
     model.eval()
 
@@ -390,7 +391,14 @@ def predict(image_path, model, topk=5):
         # calculate probabilities
         proba = np.exp(nll)
 
-        return proba, classes
+        if class_names_json:
+            with open('cat_to_name.json', 'r') as f:
+                cat_to_name = json.load(f)
+                output_label = [cat_to_name[i] for i in classes]
+        else:
+            output_label = classes
+
+        return proba, output_label
 
 
 def predict_single_image(image_path, model, class_names_json=None):
