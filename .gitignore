@@ -1,4 +1,6 @@
 datasets/
+data/
+raw/
 *.pth
 __pycache__/
 .ipynb_checkpoints
