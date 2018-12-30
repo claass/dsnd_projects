@@ -51,12 +51,19 @@ model = joblib.load("../models/model.pickle")
 @app.route('/index')
 def index():
 
-    # extract data needed for visuals
+    # extract data for barchart
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
 
+    # extract data for piechart
+    sub = df.drop(['message', 'genre', 'id'], axis=1)
+    sum = sub.sum(axis=0)
+    sum.sort_values(ascending=False, inplace=True)
+    class_labels = sum.index.values
+    class_counts = sum.values
+    # print(counts, file=sys.stderr)
+
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
@@ -75,7 +82,26 @@ def index():
                     'title': "Genre"
                 }
             }
-        }
+        },
+        {
+            'data': [
+                Bar(
+                    x=class_labels,
+                    y=class_counts
+                )
+            ],
+
+            'layout': {
+                'title': 'Count of Training Examples by Class',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Genre"
+                },
+                'height': 300,
+            }
+        },
     ]
 
     # encode plotly graphs in JSON
