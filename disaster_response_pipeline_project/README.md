@@ -3,15 +3,16 @@
 ### About this project:
 This project is a web app to aid disaster relief workers by assigning text messages up to 36 different labels related to its content. The web app also displays visualizations of the training data used to train the algorithm. Under the hood the web app is using a random forest algorithm with varying performance by label (see table below).
 
+
 **Other content in this repo:**
 - process_data.py: Script to load, clean, and save the input data provided by FigureEight
 - train_classifier.py: Script to retrain the classifier. Options for gridsearch have been simplified to limit processing time.
 
-**Classifier Performance by Label:**
 
-|                        | precision | recall | f1-score | support |
+**Classifier performance by label:**
+
+| label                  | precision | recall | f1-score | support |
 |------------------------|----------:|-------:|---------:|--------:|
-|                        |           |        |          |         |
 | related                |      0.94 |   0.99 |     0.97 |    4970 |
 | request                |      0.97 |   0.85 |     0.91 |    1132 |
 | offer                  |         1 |   0.79 |     0.88 |      28 |
@@ -48,8 +49,8 @@ This project is a web app to aid disaster relief workers by assigning text messa
 | cold                   |      0.99 |   0.71 |     0.82 |     126 |
 | other_weather          |         1 |   0.71 |     0.83 |     336 |
 | direct_report          |      0.98 |   0.82 |     0.89 |    1280 |
-|                        |           |        |          |         |
-| avg / total            |      0.97 |   0.85 |      0.9 |   20841 |
+|------------------------|----------:|-------:|---------:|--------:|
+|   avg / total          |      0.97 |   0.85 |      0.9 |   20841 |
 
 
 ### Instructions on starting the web app:
