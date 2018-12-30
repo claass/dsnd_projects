@@ -1,4 +1,5 @@
 # Disaster Response Pipeline Project
+This project is a machine learning pipeline to categorize messages sent during disaster events. It includes a web app where an emergency worker can input a new message and get classification results in several categories. The web app also displays visualizations of the training data. 
 
 ### Instructions:
 1. Run the following commands in the project's root directory to set up your database and model.
@@ -12,3 +13,8 @@
     `python run.py`
 
 3. Go to http://0.0.0.0:3001/
+
+### Screenshots:
+Once a user message is submitted, its labels are predicted by a pre-trained
+Random Forest Classifier:
+![classification Task](https://raw.githubusercontent.com/claass/udacity_datascientist_projects/tree/master/disaster_response_pipeline_project/screenshots/classification_task.png)
