@@ -15,6 +15,18 @@ app = Flask(__name__)
 
 
 def tokenize(text):
+    """
+    Creates tokes from a given text corpus. Includes replacing
+    urls and @mentions with respective placeholders, stripping out special
+    characters, lemmatizing, and stripping
+
+    Args:
+        text (str): text input as string
+
+    Returns:
+        list of tokens
+    """
+
     # Replace URLS with placeholder
     url_regex = "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
     detected_urls = re.findall(url_regex, text)
@@ -50,6 +62,10 @@ model = joblib.load("../models/model.pickle")
 @app.route('/')
 @app.route('/index')
 def index():
+    """
+    Handler for the index page. Includes simple calculations and passes
+    data for summary graphs to the frontend.
+    """
 
     # extract data for barchart
     genre_counts = df.groupby('genre').count()['message']
@@ -115,6 +131,9 @@ def index():
 # web page that handles user query and displays model results
 @app.route('/go')
 def go():
+    """
+    Handler for classification task submission.
+    """
     # save user input in query
     query = request.args.get('query', '')
 

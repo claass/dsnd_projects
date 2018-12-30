@@ -19,6 +19,19 @@ nltk.download('wordnet', quiet=True)
 
 
 def load_data(database_filepath):
+    """
+    Loads the training data from the given sqlite database.
+
+    Args:
+        database_filepath (str): filepath to the sqlite database containing
+            the training data
+
+    Returns:
+        X (pd.DataFrame): Features for training
+        y (pd.DataFrame): Target values for training (36 different classes)
+        categories (list): List of column names for easy access
+    """
+
     # Connect to database and get all tweets
     engine = create_engine('sqlite:///'+database_filepath)
     result = engine.execute("SELECT * FROM Tweets")
@@ -33,6 +46,18 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    """
+    Creates tokes from a given text corpus. Includes replacing
+    urls and @mentions with respective placeholders, stripping out special
+    characters, lemmatizing, and stripping
+
+    Args:
+        text (str): text input as string
+
+    Returns:
+        list of tokens
+    """
+
     # Replace URLS with placeholder
     url_regex = "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
     detected_urls = re.findall(url_regex, text)
@@ -57,6 +82,14 @@ def tokenize(text):
 
 
 def build_model():
+    """
+    Compiles the ML pipeline. For simplicity the parameter space
+    for GridSearchCV is kept at a minimum.
+
+    Returns:
+        GridSearchCV object
+    """
+
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
@@ -76,17 +109,38 @@ def build_model():
 
 
 def evaluate_model(model, X_test, y_test, category_names):
+    """
+    Prints out the model's performance on the test data to the consoleself.
+    Includes precision, recall, f-1 score, and support size.
+
+    Args:
+        model - Trained sklearn model with predict method
+        X_test - pd.DataFrame with test features
+        y_test - pd.DataFrame with test target values
+        category_names - List of strings with category names
+    """
     y_pred = model.predict(X_test)
     y_pred = pd.DataFrame(y_pred, columns=y_test.columns, index=y_test.index)
     print(classification_report(y_test, y_pred, target_names=category_names))
 
 
 def save_model(model, model_filepath):
+    """
+    Saves a given model to the provided filepath as a pickel file.
+
+    Args:
+        model - model to be saved
+        model_filepath - path and filename (including extension) to save the model
+    """
     with open(model_filepath, 'wb') as f:
         pickle.dump(model, f)
 
 
 def main():
+    """
+    Main function to orchestrate the training script.
+    """
+    
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
