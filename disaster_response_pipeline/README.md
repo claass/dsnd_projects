@@ -72,4 +72,4 @@ This project is a web app to aid disaster relief workers by assigning text messa
 Once a user message is submitted, its labels are predicted by a pre-trained
 Random Forest Classifier:
 
-![classification Task](https://raw.githubusercontent.com/claass/udacity_datascientist_projects/master/disaster_response_pipeline_project/screenshots/classification_task.png)
+![classification Task](https://raw.githubusercontent.com/claass/udacity_datascientist_projects/master/disaster_response_pipeline/screenshots/classification_task.png)
