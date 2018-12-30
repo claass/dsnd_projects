@@ -1,12 +1,11 @@
 import json
 import plotly
 import pandas as pd
-
+import re
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
-
 from flask import Flask
-from flask import render_template, request, jsonify
+from flask import render_template, request
 from plotly.graph_objs import Bar
 from sklearn.externals import joblib
 from sqlalchemy import create_engine
@@ -14,10 +13,23 @@ from sqlalchemy import create_engine
 
 app = Flask(__name__)
 
+
 def tokenize(text):
+    # Replace URLS with placeholder
+    url_regex = "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
+    detected_urls = re.findall(url_regex, text)
+    for url in detected_urls:
+        text = text.replace(url, "urlplaceholder")
+
+    # Replace mentions with placeholder
+    mention_regex = "/^(?!.*\bRT\b)(?:.+\s)?@\w+/i"
+    detected_mentions = re.findall(mention_regex, text)
+    for mention in detected_mentions:
+        text = text.replace(mention, "mentionplaceholder")
+
+    # Tokenize and lemmatize
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
-
     clean_tokens = []
     for tok in tokens:
         clean_tok = lemmatizer.lemmatize(tok).lower().strip()
@@ -34,13 +46,12 @@ df = pd.read_sql_table('Tweets', engine)
 model = joblib.load("../models/model.pickle")
 
 
-# index webpage displays cool visuals and receives user input text for model
+# index webpage displays visuals and receives user input text for model
 @app.route('/')
 @app.route('/index')
 def index():
 
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
 
