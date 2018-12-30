@@ -14,6 +14,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.metrics import classification_report
 from sklearn.multioutput import MultiOutputClassifier
 
+# Downloads potentially neccesary for the tokenization process
 nltk.download('punkt', quiet=True)
 nltk.download('wordnet', quiet=True)
 
@@ -140,7 +141,7 @@ def main():
     """
     Main function to orchestrate the training script.
     """
-    
+
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
