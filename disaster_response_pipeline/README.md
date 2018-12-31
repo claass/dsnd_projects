@@ -1,12 +1,7 @@
 # Disaster Response Pipeline
 
 ### About this project:
-This project is a web app to aid disaster relief workers by assigning text messages up to 36 different labels related to its content. The web app also displays visualizations of the training data used to train the algorithm. Under the hood the web app is using a random forest algorithm with varying performance by label (see table below).
-
-
-**Other content in this repo:**
-- process_data.py: Script to load, clean, and save the input data provided by FigureEight
-- train_classifier.py: Script to retrain the classifier. Options for gridsearch have been simplified to limit processing time.
+This project creates a web app to aid disaster relief workers. It provides the user with an interface to input text messages and returns up to 36 different labels as they apply to the message content. Under the hood the web app is using a random forest algorithm that achieved 97% precision and 85% recall on the testing dataset (that said, performance varies a lot by label category). The web app also displays visualizations of the training data used to train the algorithm. Scripts to load, clean, and save the input data and retrain the classifier are also included in this folder. The dataset has been provided by FigureEight.
 
 
 **Classifier performance by label:**
@@ -52,6 +47,7 @@ This project is a web app to aid disaster relief workers by assigning text messa
 | avg / total            |      0.97 |   0.85 |      0.9 |   20841 |
 
 
+
 ### Instructions on starting the web app:
 1. [Download the training datasets](https://drive.google.com/open?id=1UF2YPf4qin0pMM_HYnMLeCq7tK8jyYA9) and place them in data folder
 
@@ -68,8 +64,9 @@ This project is a web app to aid disaster relief workers by assigning text messa
 4. Go to http://0.0.0.0:3001/
 
 
+
 ### Screenshots:
 Once a user message is submitted, its labels are predicted by a pre-trained
 Random Forest Classifier:
 
-![classification Task](https://raw.githubusercontent.com/claass/udacity_datascientist_projects/master/disaster_response_pipeline/screenshots/classification_task.png)
+![text classification example](../images/text_classification_example.png)
